@@ -96,6 +96,7 @@ namespace Magaz
 
             Receipt receipt = new Receipt();
             bool continueBuying =true;
+            
             for (int counter = 0; counter < userWantedProductsTypeAmount; counter++)
             {
                 if (!continueBuying)
@@ -110,7 +111,6 @@ namespace Magaz
                 {
                     _visualController.WrongProductInformation(userTypeOfProduct);
                     var userNextAction = _visualController.RequestForNextAction();
-                    
                     ModerateNextAction(userNextAction,ref continueBuying, ref counter);
                     continue;
                 }

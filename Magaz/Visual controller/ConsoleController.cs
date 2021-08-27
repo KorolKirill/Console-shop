@@ -19,7 +19,7 @@ namespace Magaz.Visual_controller
             foreach (var receipt in history.Receipts)
             {
                 Console.WriteLine("____________________________");
-                Console.WriteLine($"Receipt №{counter}");
+                Console.WriteLine($"Receipt-{counter++}");
                 foreach (var order in receipt.OrderList)
                 {
                     Console.WriteLine($"{order.Product.Name} - {order.Amount.ToString()}");
