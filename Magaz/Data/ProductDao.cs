@@ -20,6 +20,12 @@ namespace Magaz
             // maybe return Enumerator? 
         }
 
+        public ProductData FindByInformation(ProductInformation productInformation)
+        {
+            return GetAllData().FirstOrDefault(x => x.Product.Equals(productInformation));
+        }
+
+
         public bool CheckIfExistsByName(string name)
         {
             return findByName(name) != null;

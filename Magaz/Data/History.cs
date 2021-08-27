@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security;
 
 namespace Magaz
 {
     public class History
     {
-        private readonly List<Receipt> _receipts;
+        public List<Receipt> Receipts { get; private set; }
 
         public History()
         {
-            _receipts = new List<Receipt>();
+            Receipts = new List<Receipt>();
         }
 
         public void Add(Receipt receipt)
@@ -22,9 +23,10 @@ namespace Magaz
             if (receipt.OrderList.Count==0)
             {
                 //пустой чек.   
+                return;
             }
             
-            _receipts.Add(receipt);
+            Receipts.Add(receipt);
         }
     }
     

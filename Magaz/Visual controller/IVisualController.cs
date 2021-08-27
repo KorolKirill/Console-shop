@@ -1,9 +1,15 @@
-﻿namespace Magaz.Visual_controller
+﻿using System.Collections.Generic;
+
+namespace Magaz.Visual_controller
 {
     public interface IVisualController
     {
+        public void ShowAllHistory(History history);
         public void WelcomeMessage();
         public void ShowMenu();
+        public void GoodByeMessage();
+
+        public void ShowProducts(List<ProductData> productDatas);
         public Shop.OptionType RequestOption();
         public void WrongOption(Shop.OptionType option);
 

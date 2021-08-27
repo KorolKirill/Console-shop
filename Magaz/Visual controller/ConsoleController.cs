@@ -1,10 +1,37 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Channels;
 
 namespace Magaz.Visual_controller
 { 
     public class ConsoleController : IVisualController
     {
+        public void ShowAllHistory(History history)
+        {
+            if (history.Receipts.Count == 0)
+            {
+                Console.WriteLine("We don`t have anything in history right now");
+                return;
+            }
+
+            int counter = 1;
+            foreach (var receipt in history.Receipts)
+            {
+                Console.WriteLine("____________________________");
+                Console.WriteLine($"Receipt №{counter}");
+                foreach (var order in receipt.OrderList)
+                {
+                    Console.WriteLine($"{order.Product.Name} - {order.Amount.ToString()}");
+                }
+
+                Console.WriteLine($"Date: {receipt.GetDataOfCreation().ToString()}");
+                Console.WriteLine("----------------------------");
+            }
+            
+            
+        }
+
         public void WelcomeMessage()
         {
             string welcomeMessage = "Welcome in our super shop! ;D";
@@ -20,6 +47,32 @@ namespace Magaz.Visual_controller
                 "\n 3. Show buying history " +
                 "\n 0. Exit";
             Console.Write(menu);
+        }
+
+        public void GoodByeMessage()
+        {
+            Console.WriteLine("See you!");
+        }
+
+        public void ShowProducts(List<ProductData> productDatas)
+        {
+            string message = "Here is a list of all products in stock!";
+            Console.WriteLine("\n" + message);
+            
+            int counter = 1;
+            foreach (var productData in productDatas)
+            {
+                if (productData.Quantity == 0)
+                {
+                    continue;
+                }
+                Console.WriteLine(
+                    $"{counter++}. " +
+                    $"Name: {productData.Product.Name}, " +
+                    $"code: {productData.Product.Code}, " +
+                    $"quantity: {productData.Quantity} "
+                );
+            }
         }
 
         public Shop.OptionType RequestOption()
@@ -103,7 +156,7 @@ namespace Magaz.Visual_controller
 
         public Shop.Action RequestForNextAction()
         {
-            Console.WriteLine("What do you want to do now?");
+            Console.WriteLine("\nWhat do you want to do now?");
             Console.WriteLine("You can finish you purchase : enter - 1");
             Console.WriteLine("You can try last operation again: enter - 0");
             Console.WriteLine("If you forgot out list of product, you can get it: enter - 2");
@@ -128,10 +181,12 @@ namespace Magaz.Visual_controller
             switch (userWantedTypeOfSearch)
             {
                 case TypeOfSearch.ByName:
+                    Console.WriteLine("Enter a name:");
                     string name = Console.ReadLine();
                     return productInfo = new ProductInformation(name);
                     break;
                 case TypeOfSearch.ByCode:
+                    Console.WriteLine("Enter a code:");
                     int code = ReadANumberFromConsole();
                     return productInfo = new ProductInformation(code);
                     break;
@@ -142,56 +197,12 @@ namespace Magaz.Visual_controller
                     return RequestProductType();
                     break;
             }
-
-            if userInput 
-            if (int.TryParse(userInput, out var productCode))
-            {
-                if (_productDao.CheckIfExistsByCode(productCode))
-                {
-                    int amount = AskForQuantity();
-                    try
-                    {
-                        _productDao.Take(productCode,amount);
-                        string purchase = $"{i + 1}. Code: {productCode}, amount: {amount}\n";
-                        purshaseList.Append(purchase);
-                    }
-                    catch (NotEnoughProductException e)
-                    {
-                        Console.WriteLine("Sorry, but you want more than we have in our shop. Chose something again");
-                        i--;
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("You wrote code of product that doesn`t exist. Try again!");
-                    i--;
-                }
-            }
-            else if (_productDao.CheckIfExistsByName(userInput))
-            {
-                int amount = AskForQuantity();
-                try
-                {
-                    _productDao.Take(userInput,amount);
-                    string purchase = $"{i + 1}. Name: {userInput}, amount: {amount}\n";
-                    purshaseList.Append(purchase);
-                }
-                catch (NotEnoughProductException e)
-                {
-                    Console.WriteLine("Sorry, but you want more than we have in our shop. Chose something again");
-                    i--;
-                }
-            }
-            else
-            {
-                Console.WriteLine("You entered wrong name. Try again");
-                i--;
-            }
+            
         }
 
         public void FinishPurchasing(Receipt receipt)
         {
-            Console.WriteLine("Thank you for your visit!.");
+            Console.WriteLine("\nThank you for your visit!.");
             if (receipt.OrderList.Count!=0)
             {
                 Console.WriteLine("Here is your Receipt:");

@@ -67,19 +67,7 @@ namespace Magaz
 
         private void ShowAllHistory()
         {
-            var history = _productDao.GetHistory();
-            if (history.Count == 0)
-            {
-                Console.WriteLine("We have no history right now");
-            }
-            else
-            {
-                Console.WriteLine("History:");
-                foreach (var purchase in history)
-                {
-                    Console.WriteLine(purchase);
-                }
-            }
+            _visualController.ShowAllHistory(_history);
         }
         public enum Action
         {
@@ -87,10 +75,12 @@ namespace Magaz
             FinishBuying = 1,
             ViewListOfProducts = 2
         }
+        
 
         private void Buy()
         {
             var userWantedProductsTypeAmount = _visualController.RequestNumberOfTypeProductsBuying();
+           
             if (userWantedProductsTypeAmount <= 0)
             {
                 _visualController.WrongNumberOfTypeProductsBuying(userWantedProductsTypeAmount);
@@ -115,6 +105,7 @@ namespace Magaz
                 
                 var userTypeOfProduct = _visualController.RequestProductType();
                 var productData = _productDao.FindByInformation(userTypeOfProduct);
+                
                 if (productData == null)
                 {
                     _visualController.WrongProductInformation(userTypeOfProduct);
@@ -125,6 +116,7 @@ namespace Magaz
                 }
 
                 var userAmountOfProduct = _visualController.RequestAmountOfProduct(productData);
+                
                 if (userAmountOfProduct <= 0)
                 {
                     _visualController.WrongAmountProductBuying(userAmountOfProduct);
@@ -159,7 +151,7 @@ namespace Magaz
                 throw new NotEnoughProductException();
             }
 
-            productData.Quantity = -amount;
+            productData.Quantity -= amount;
         }
 
         private void ModerateNextAction(Action userAction, ref bool continueBuying, ref int counter)
@@ -174,6 +166,7 @@ namespace Magaz
                     break;
                 case Action.ViewListOfProducts:
                     ShowProductList();
+                    counter--;
                     break;
                 default:
                     continueBuying = false;
@@ -181,38 +174,17 @@ namespace Magaz
             }
         }
 
-        private int AskForQuantity()
-        {
-            Console.WriteLine("How many of this product do you want?");
-            string input = Console.ReadLine();
-            
-            if (int.TryParse(input, out var amount) && amount>0)
-            {
-                return amount;
-            }
-            
-            Console.WriteLine("You wrote wrong number less than 1, or entered not a number");
-            return AskForQuantity();
-        }
 
         private void Exit()
         {
+            _visualController.GoodByeMessage();
             working = false;
         }
 
         private void ShowProductList()
         {
-            string message = "Here is a list of all products in stock!";
-            Console.WriteLine("\n" + message);
-            int counter = 1;
-            foreach (var productData in _productDao.GetAllData())
-            {
-                Console.WriteLine(
-                    $"{counter++}. Name: {productData.Product.Name}," +
-                    $"code: {productData.Product.Code}" +
-                    $" quantity: {productData.Quantity}"
-                );
-            }
+            var allProductsData = _productDao.GetAllData();
+            _visualController.ShowProducts(allProductsData);
         }
     }
 }

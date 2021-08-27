@@ -23,8 +23,14 @@
     }
     public abstract class Product
     {
+        public bool Equals(ProductInformation product)
+        {
+            return Name.Equals(product.Name) || Code.Equals(product.Code);
+        }
+
         public string Name { get; private set; }
         public int Code { get; set; }
+        
         public Product(string name)
         {
             Name = name;
