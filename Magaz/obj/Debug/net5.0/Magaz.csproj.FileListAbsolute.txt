@@ -1,0 +1,16 @@
+F:\C#\Magaz\Magaz\obj\Debug\net5.0\Magaz.csproj.AssemblyReference.cache
+F:\C#\Magaz\Magaz\obj\Debug\net5.0\Magaz.GeneratedMSBuildEditorConfig.editorconfig
+F:\C#\Magaz\Magaz\obj\Debug\net5.0\Magaz.AssemblyInfoInputs.cache
+F:\C#\Magaz\Magaz\obj\Debug\net5.0\Magaz.AssemblyInfo.cs
+F:\C#\Magaz\Magaz\obj\Debug\net5.0\Magaz.csproj.CoreCompileInputs.cache
+F:\C#\Magaz\Magaz\bin\Debug\net5.0\Magaz.exe
+F:\C#\Magaz\Magaz\bin\Debug\net5.0\Magaz.deps.json
+F:\C#\Magaz\Magaz\bin\Debug\net5.0\Magaz.runtimeconfig.json
+F:\C#\Magaz\Magaz\bin\Debug\net5.0\Magaz.runtimeconfig.dev.json
+F:\C#\Magaz\Magaz\bin\Debug\net5.0\Magaz.dll
+F:\C#\Magaz\Magaz\bin\Debug\net5.0\ref\Magaz.dll
+F:\C#\Magaz\Magaz\bin\Debug\net5.0\Magaz.pdb
+F:\C#\Magaz\Magaz\obj\Debug\net5.0\Magaz.dll
+F:\C#\Magaz\Magaz\obj\Debug\net5.0\ref\Magaz.dll
+F:\C#\Magaz\Magaz\obj\Debug\net5.0\Magaz.pdb
+F:\C#\Magaz\Magaz\obj\Debug\net5.0\Magaz.genruntimeconfig.cache
