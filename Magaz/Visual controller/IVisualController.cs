@@ -10,8 +10,8 @@ namespace Magaz.Visual_controller
         public void GoodByeMessage();
 
         public void ShowProducts(List<ProductData> productDatas);
-        public Shop.OptionType RequestOption();
-        public void WrongOption(Shop.OptionType option);
+        public ShopManager.OptionType RequestOption();
+        public void WrongOption(ShopManager.OptionType option);
 
         public void WrongAmountProductBuying(int amount);
 
@@ -23,10 +23,10 @@ namespace Magaz.Visual_controller
         public void LackOfProductTypeOnStock(int userInput, int productAmountOnStock);
 
         public int RequestAmountOfProduct(ProductData data);
-        public Shop.Action RequestForNextAction();
-        public ProductInformation RequestProductType();
+        public ShopManager.Action RequestForNextAction();
+        public ProductInformation RequestProductInformation();
 
-        public void FinishPurchasing(Receipt receipt);
+        public void FinishPurchasing(Order receipt);
         
     }
 }

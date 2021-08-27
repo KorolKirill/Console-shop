@@ -9,23 +9,23 @@ namespace Magaz.Visual_controller
     {
         public void ShowAllHistory(History history)
         {
-            if (history.Receipts.Count == 0)
+            if (history.Orders.Count == 0)
             {
                 Console.WriteLine("We don`t have anything in history right now");
                 return;
             }
 
             int counter = 1;
-            foreach (var receipt in history.Receipts)
+            foreach (var order in history.Orders)
             {
                 Console.WriteLine("____________________________");
                 Console.WriteLine($"Receipt-{counter++}");
-                foreach (var order in receipt.OrderList)
+                foreach (var productType in order.ProductDataList)
                 {
-                    Console.WriteLine($"{order.Product.Name} - {order.Amount.ToString()}");
+                    Console.WriteLine($"{productType.Product.Name} - {productType.Quantity.ToString()}");
                 }
 
-                Console.WriteLine($"Date: {receipt.GetDataOfCreation().ToString()}");
+                Console.WriteLine($"Date: {order.GetDataOfCreation().ToString()}");
                 Console.WriteLine("----------------------------");
             }
             
@@ -75,15 +75,15 @@ namespace Magaz.Visual_controller
             }
         }
 
-        public Shop.OptionType RequestOption()
+        public ShopManager.OptionType RequestOption()
         {
             string message = "\nPick an option";
             Console.WriteLine(message);
             var option = ReadANumberFromConsole();
-            return (Shop.OptionType) option;
+            return (ShopManager.OptionType) option;
         }
 
-        public void WrongOption(Shop.OptionType option)
+        public void WrongOption(ShopManager.OptionType option)
         {
             Console.WriteLine($"Sorry, but you have picked option that does not exist! You picked: {option.ToString()}");
         }
@@ -154,7 +154,7 @@ namespace Magaz.Visual_controller
             return ReadANumberFromConsole();
         }
 
-        public Shop.Action RequestForNextAction()
+        public ShopManager.Action RequestForNextAction()
         {
             Console.WriteLine("\nWhat do you want to do now?");
             Console.WriteLine("You can finish you purchase : enter - 1");
@@ -162,7 +162,7 @@ namespace Magaz.Visual_controller
             Console.WriteLine("If you forgot out list of product, you can get it: enter - 2");
             Console.WriteLine("if you enter wrong option we will automatically finish your purchase");
            
-            return (Shop.Action) ReadANumberFromConsole();
+            return (ShopManager.Action) ReadANumberFromConsole();
         }
 
 
@@ -172,44 +172,31 @@ namespace Magaz.Visual_controller
             ByCode = 2,
         }
         
-        public ProductInformation RequestProductType()
+        public ProductInformation RequestProductInformation()
         {
             Console.WriteLine("What product do you want to buy? You can pick a product by it`s name or code ");
-            Console.WriteLine("Type: 1 - to search by name, 2- to code ");
-            var userWantedTypeOfSearch = (TypeOfSearch) ReadANumberFromConsole();
-            ProductInformation productInfo;
-            switch (userWantedTypeOfSearch)
+            Console.WriteLine("Enter it`s code or name");
+            
+            string input = Console.ReadLine();
+            if (int.TryParse(input,out var code))
             {
-                case TypeOfSearch.ByName:
-                    Console.WriteLine("Enter a name:");
-                    string name = Console.ReadLine();
-                    return productInfo = new ProductInformation(name);
-                    break;
-                case TypeOfSearch.ByCode:
-                    Console.WriteLine("Enter a code:");
-                    int code = ReadANumberFromConsole();
-                    return productInfo = new ProductInformation(code);
-                    break;
-                default:
-                    Console.WriteLine("Sorry, buy you trying to use search method that doesn`t exist");
-                    Console.WriteLine($"You entered {userWantedTypeOfSearch.ToString()}, but was expected: 1 or 2");
-                    Console.WriteLine("Pls, try again");
-                    return RequestProductType();
-                    break;
+                return new ProductInformation(code);
             }
+            //by name
+            return new ProductInformation(input);
             
         }
 
-        public void FinishPurchasing(Receipt receipt)
+        public void FinishPurchasing(Order order)
         {
             Console.WriteLine("\nThank you for your visit!.");
-            if (receipt.OrderList.Count!=0)
+            if (order.ProductDataList.Count!=0)
             {
                 Console.WriteLine("Here is your Receipt:");
                 Console.WriteLine("*************************");
-                foreach (var order in receipt.OrderList)
+                foreach (var productData in order.ProductDataList)
                 {
-                    Console.WriteLine($"{order.Product.Name} - {order.Amount.ToString()}");
+                    Console.WriteLine($"{productData.Product.Name} - {productData.Quantity.ToString()}");
                 }
                 Console.WriteLine("*************************");
             }
@@ -229,6 +216,7 @@ namespace Magaz.Visual_controller
         private void WarningEnteredNotANumber(string userInput)
         {
             Console.WriteLine($"Warning! You Entered not a number. Pls try again. Your input: {userInput}");
+            Console.WriteLine("Write number again:");
         }
     }
 }

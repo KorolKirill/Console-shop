@@ -6,54 +6,49 @@ namespace Magaz
 {
     public class History
     {
-        public List<Receipt> Receipts { get; private set; }
+        public List<Order> Orders { get; private set; }
 
         public History()
         {
-            Receipts = new List<Receipt>();
+            Orders = new List<Order>();
         }
 
-        public void Add(Receipt receipt)
+        public void Add(Order receipt)
         {
             if (receipt==null)
             {
                 throw new NullReferenceException();
             }
 
-            if (receipt.OrderList.Count==0)
+            if (receipt.ProductDataList.Count == 0)
             {
                 //пустой чек.   
                 return;
             }
             
-            Receipts.Add(receipt);
+            Orders.Add(receipt);
         }
     }
     
-    public class Receipt
+    public class Order
     {
-        public List<Order> OrderList { get; private set; }
+        public List<ProductData> ProductDataList { get; private set; }
         private readonly DateTime _dateTimeCreation;
 
-        public Receipt()
+        public Order()
         {
             _dateTimeCreation= DateTime.Now;
-            OrderList = new List<Order>();
+            ProductDataList = new List<ProductData>();
         }
 
-        public Receipt(Order order) :this()
+        public virtual void Add(ProductData order)
         {
-            
-        }
-
-        public virtual void Add(Order order)
-        {
-            if (order==null)
+            if (order == null)
             {
                 throw new ArgumentNullException();
             }
             
-            OrderList.Add(order);
+            ProductDataList.Add(order);
         }
 
         public virtual DateTime  GetDataOfCreation()
@@ -61,16 +56,5 @@ namespace Magaz
             return _dateTimeCreation;
         }
     }
-
-    public class Order
-    {
-        public Product Product { get; private set; }
-        public int Amount { get; private set;  }
-
-        public Order(Product product, int amount)
-        {
-            Product = product;
-            Amount = amount;
-        }
-    }
+    
 }

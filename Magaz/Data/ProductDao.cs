@@ -24,7 +24,18 @@ namespace Magaz
         {
             return GetAllData().FirstOrDefault(x => x.Product.Equals(productInformation));
         }
-        
-        
+
+        public void Take(ProductData productData, int amount)
+        {
+            productData.Quantity -= amount;
+        }
+
+        public void Take(ProductInformation productInformation, int amount)
+        {
+            
+            var productData = FindByInformation(productInformation);
+            Take(productData,amount);
+            
+        }
     }
 }

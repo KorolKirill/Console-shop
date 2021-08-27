@@ -7,9 +7,8 @@ namespace Magaz
     {
         static void Main(string[] args)
         {
-            var asketShop = new Shop(new ConsoleController());
-            asketShop.Start(); 
-
+            ShopManager manager = new ShopManager(new Shop());
+            manager.Start();
         }
     }
 }
