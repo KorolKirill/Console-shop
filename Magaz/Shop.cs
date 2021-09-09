@@ -1,218 +1,98 @@
-﻿using System;
-using System.Text;
-using Magaz.Visual_controller;
+﻿using System.Collections.Generic;
+using Magaz.Users;
 
 namespace Magaz
 {
     public class Shop
     {
-        private bool working;
-        private readonly IProductDao _productDao;
-        private readonly IVisualController _visualController;
-        private readonly History _history;
-        
-        public Shop(IVisualController visualController)
+        private IProductDao _productDao;
+        private IUserDao _userDao;
+        public History History {  get; private set; }
+        // redo get - > private get 
+        public Shop()
         {
+            _userDao = new UserDao();
             _productDao = new ProductDao();
-            _visualController = visualController;
-            _history = new History();
+            History = new History();
         }
 
-        public void Start()
+        public List<Order> GetAllOrders()
         {
-            _visualController.WelcomeMessage();
-            working = true;
-            while (working)
+            return History.Orders;
+        }
+        public List<Order> GetUserOrders(IAuthorisedUser user)
+        {
+            return History.FindUserOrders(user);
+        }
+        public void AddOrder(Order order)
+        {
+            History.Add(order);
+        }
+        public IAuthorisedUser LogIntoAccount(string login, string password)
+        {
+            var user =  _userDao.FindAccount(login, password);
+            return user;
+        }
+
+        public IAuthorisedUser RegistrateNewUser(string login, string password)
+        {
+            var newUser =  _userDao.Registrate(login, password);
+            //returns null if couldn`t registrate.
+            return newUser;
+        }
+        public int AmountOfProductsInStock()
+        {
+            return _productDao.GetAllData().Count;
+        }
+
+        public List<ProductData> GetAllProductData()
+        {
+            return _productDao.GetAllData();
+        }
+
+        public ProductData FindProductByInformation(ProductInformation productInformation)
+        {
+            return _productDao.FindByInformation(productInformation);
+        }
+
+        public int GetLastProductCode()
+        {
+            var productsData = _productDao.GetAllData();
+            var lastCode = 1;
+            foreach (var productData in productsData)
             {
-                ShowMenu();
+                if (productData.Product.Code > lastCode)
+                {
+                    lastCode = productData.Product.Code;
+                }
             }
-        }
 
-        private void ShowMenu()
-        {
-            _visualController.ShowMenu();
-            PickOption();
+            return ++lastCode;
         }
         
-        public enum OptionType
-        {
-            Exit = 0,
-            ProductList = 1,
-            BuyStuff = 2,
-            History = 3,
-        }
-        
-        private void PickOption()
-        {
-            var option = _visualController.RequestOption();
-            switch (option)
-            {
-                case OptionType.ProductList :
-                    ShowProductList(); 
-                    break;
-                case OptionType.BuyStuff :
-                    Buy();
-                    break;
-                case OptionType.History :
-                    ShowAllHistory();
-                    break;
-                case OptionType.Exit:
-                    Exit();
-                    break;
-                default:
-                    _visualController.WrongOption(option);
-                    break;
-            }
-        }
-
-        private void ShowAllHistory()
-        {
-            var history = _productDao.GetHistory();
-            if (history.Count == 0)
-            {
-                Console.WriteLine("We have no history right now");
-            }
-            else
-            {
-                Console.WriteLine("History:");
-                foreach (var purchase in history)
-                {
-                    Console.WriteLine(purchase);
-                }
-            }
-        }
-        public enum Action
-        {
-            TryAgain = 0,
-            FinishBuying = 1,
-            ViewListOfProducts = 2
-        }
-
-        private void Buy()
-        {
-            var userWantedProductsTypeAmount = _visualController.RequestNumberOfTypeProductsBuying();
-            if (userWantedProductsTypeAmount <= 0)
-            {
-                _visualController.WrongNumberOfTypeProductsBuying(userWantedProductsTypeAmount);
-                return;
-            }
-
-            var productsAmountOnStock = _productDao.GetAllData().Count;
-            if (userWantedProductsTypeAmount > productsAmountOnStock )
-            {
-                _visualController.LackOfProductTypeOnStock(userWantedProductsTypeAmount,productsAmountOnStock);
-                return;
-            }
-
-            Receipt receipt = new Receipt();
-            bool continueBuying =true;
-            for (int counter = 0; counter < userWantedProductsTypeAmount; counter++)
-            {
-                if (!continueBuying)
-                {
-                    break;
-                }
-                
-                var userTypeOfProduct = _visualController.RequestProductType();
-                var productData = _productDao.FindByInformation(userTypeOfProduct);
-                if (productData == null)
-                {
-                    _visualController.WrongProductInformation(userTypeOfProduct);
-                    var userNextAction = _visualController.RequestForNextAction();
-                    
-                    ModerateNextAction(userNextAction,ref continueBuying, ref counter);
-                    continue;
-                }
-
-                var userAmountOfProduct = _visualController.RequestAmountOfProduct(productData);
-                if (userAmountOfProduct <= 0)
-                {
-                    _visualController.WrongAmountProductBuying(userAmountOfProduct);
-                    counter++;
-                    continue;
-                }
-
-                try
-                {
-                    TakeProductsFromStock(productData,userAmountOfProduct);
-                    Order order = new Order(productData.Product, userAmountOfProduct);
-                    receipt.Add(order);
-                }
-                catch (NotEnoughProductException e)
-                {
-                    _visualController.NotEnoughProduct(productData,userAmountOfProduct);
-                    counter++;
-                    continue;
-                }
-            }
-            
-            _visualController.FinishPurchasing(receipt);
-            _history.Add(receipt);
-            
-        }
-
-        //Этот метод мне не очень нравится в этом классе.
-        private void TakeProductsFromStock(ProductData productData, int amount)
+        public bool TakeProductsFromStock(ProductData productData, int amount)
         {
             if (amount > productData.Quantity)
             {
-                throw new NotEnoughProductException();
+                return false;
             }
-
-            productData.Quantity = -amount;
+            _productDao.Take(productData,amount);
+            return true;
         }
 
-        private void ModerateNextAction(Action userAction, ref bool continueBuying, ref int counter)
+        public void AddNewProduct(Product product, int amount = 0)
         {
-            switch (userAction)
-            {
-                case Action.TryAgain:
-                    counter--;
-                    break;
-                case Action.FinishBuying:
-                    continueBuying = false;
-                    break;
-                case Action.ViewListOfProducts:
-                    ShowProductList();
-                    break;
-                default:
-                    continueBuying = false;
-                    break;
-            }
+            _productDao.Put(new ProductData(product,amount));
         }
 
-        private int AskForQuantity()
+        public void AddProduct(ProductData data, int amount)
         {
-            Console.WriteLine("How many of this product do you want?");
-            string input = Console.ReadLine();
-            
-            if (int.TryParse(input, out var amount) && amount>0)
-            {
-                return amount;
-            }
-            
-            Console.WriteLine("You wrote wrong number less than 1, or entered not a number");
-            return AskForQuantity();
+            _productDao.Put(data,amount);
         }
 
-        private void Exit()
+        public void DeleteHistory(Product product)
         {
-            working = false;
-        }
-
-        private void ShowProductList()
-        {
-            string message = "Here is a list of all products in stock!";
-            Console.WriteLine("\n" + message);
-            int counter = 1;
-            foreach (var productData in _productDao.GetAllData())
-            {
-                Console.WriteLine(
-                    $"{counter++}. Name: {productData.Product.Name}," +
-                    $"code: {productData.Product.Code}" +
-                    $" quantity: {productData.Quantity}"
-                );
-            }
+            History.DeleteAllPresence(product);
         }
     }
 }

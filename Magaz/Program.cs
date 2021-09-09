@@ -1,4 +1,5 @@
 ﻿using System;
+using Magaz.Products.Food;
 using Magaz.Visual_controller;
 
 namespace Magaz
@@ -7,9 +8,8 @@ namespace Magaz
     {
         static void Main(string[] args)
         {
-            var asketShop = new Shop(new ConsoleController());
-            asketShop.Start(); 
-
+            ShopManager manager = new ShopManager(new Shop());
+            manager.Start();
         }
     }
 }

@@ -20,87 +20,32 @@ namespace Magaz
             // maybe return Enumerator? 
         }
 
-        public bool CheckIfExistsByName(string name)
+        public ProductData FindByInformation(ProductInformation productInformation)
         {
-            return findByName(name) != null;
+            return GetAllData().FirstOrDefault(x => x.Product.Equals(productInformation));
         }
 
-        private ProductData findByName(string name)
+        public void Take(ProductData productData, int amount)
         {
-            return GetAllData()
-                .FirstOrDefault(productData
-                    => productData.Product.Name.ToLower().Equals(name.ToLower()));
+            productData.Quantity -= amount;
         }
 
-        public bool CheckIfExistsByCode(int code)
+        public void Put(ProductData productData, int amount)
         {
-            if (FindByCode(code)!=null)
-            {
-                return true;
-            }
-            return false;
+            productData.Quantity += amount;
         }
 
-        private ProductData FindByCode(int code)
+        public void Take(ProductInformation productInformation, int amount)
         {
-            foreach (var productData in GetAllData())
-            {
-                if (productData.Product.Code.Equals(code))
-                {
-                    return productData;
-                }
-            }
-            return null;
-        }
-
-        private void Take(ProductData productData, int amount)
-        {
-            if (productData.Quantity == amount)
-            {
-                // Этот случай если мы не хотим сохранять в списке продуктов, те продукты которые закончились.
-                DeleteProduct(productData);
-                AddHistory(productData, amount);
-            }
-            else if (productData.Quantity > amount)
-            {
-                productData.Quantity -= amount;
-                AddHistory(productData,amount);
-            }
-            else
-            {
-                throw new NotEnoughProductException();
-            }
-        }
-        
-        public void Take(int code, int amount)
-        {
-            var productData = FindByCode(code);
-            Take(productData,amount);
-        }
-        
-        public void Take(string name, int amount)
-        {
-            var productData = findByName(name);
-            Take(productData,amount);
-        }
-        
-        private void DeleteProduct(ProductData productData)
-        {
-            GetAllData().Remove(productData);
-        }
-        
-        public List<string> GetHistory()
-        {
-            return _dataBase.History;
-        }
-
-        private void AddHistory(ProductData productData, int amount)
-        {
-            string history =
-                $"{_dataBase.History.Count + 1}. name: {productData.Product.Name}, code: {productData.Product.Code}," +
-                $" amount: {amount}";
             
-            _dataBase.History.Add(history);
+            var productData = FindByInformation(productInformation);
+            Take(productData,amount);
+            
+        }
+
+        public void Put(ProductData data)
+        {
+            _dataBase.ProductDatas.Add(data);
         }
     }
 }
