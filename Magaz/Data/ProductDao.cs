@@ -30,12 +30,22 @@ namespace Magaz
             productData.Quantity -= amount;
         }
 
+        public void Put(ProductData productData, int amount)
+        {
+            productData.Quantity += amount;
+        }
+
         public void Take(ProductInformation productInformation, int amount)
         {
             
             var productData = FindByInformation(productInformation);
             Take(productData,amount);
             
+        }
+
+        public void Put(ProductData data)
+        {
+            _dataBase.ProductDatas.Add(data);
         }
     }
 }

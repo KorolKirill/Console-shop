@@ -1,22 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Channels;
 
 namespace Magaz.Visual_controller
 { 
     public class ConsoleController : IVisualController
     {
-        public void ShowAllHistory(History history)
+        public void ShowMessage(string message)
         {
-            if (history.Orders.Count == 0)
+            Console.WriteLine(message);
+        }
+
+        public string RequestUserLogin()
+        {
+            Console.WriteLine("Enter your Login:");
+            return Console.ReadLine();
+        }
+
+        public string RequestUserPassword()
+        {
+            Console.WriteLine("Enter your password");
+            return Console.ReadLine();
+        }
+
+        public void ShowOrders(List<Order> orders)
+        {
+            if (orders.Count == 0)
             {
                 Console.WriteLine("We don`t have anything in history right now");
                 return;
             }
 
             int counter = 1;
-            foreach (var order in history.Orders)
+            foreach (var order in orders)
             {
                 Console.WriteLine("____________________________");
                 Console.WriteLine($"Receipt-{counter++}");
@@ -26,25 +41,71 @@ namespace Magaz.Visual_controller
                 }
 
                 Console.WriteLine($"Date: {order.GetDataOfCreation().ToString()}");
+                Console.WriteLine($"Owner: {order.GetUser().Login}");
                 Console.WriteLine("----------------------------");
             }
             
             
         }
 
-        public void WelcomeMessage()
+        public void WelcomeShopMessage()
         {
             string welcomeMessage = "Welcome in our super shop! ;D";
             Console.WriteLine(welcomeMessage);
         }
 
-        public void ShowMenu()
+        public void FailedLogIn()
+        {
+            Console.WriteLine("You entered wrong login or password.");
+            Console.WriteLine("Try again or create new account.");
+        }
+
+        public void WelcomeUserMessage(string name)
+        {
+            Console.WriteLine($"Glad to see you again {name}");
+        }
+
+        public void ShowUserMenu()
         {
             string menu =
                 "\n Pick your option:" +
                 "\n 1. Show list of all products" +
                 "\n 2. Buy some stuff" +
-                "\n 3. Show buying history " +
+                "\n 3. Show your buying history " +
+                "\n 0. Exit from your account";
+            Console.Write(menu);
+        }
+
+        public void ShowGuestMenu()
+        {
+            string menu =
+                "\nPick your option:" +
+                "\n1. Show List of all products." +
+                "\n0. back to menu";
+                Console.Write(menu);
+        }
+
+        public void ShowAdminMenu()
+        {
+            string menu =
+                "\n Pick your option:" +
+                "\n 1. Show list of all products" +
+                "\n 2. Buy some stuff" +
+                "\n 3. Show your buying history " +
+                "\n 4. Show all buying history in shop " +
+                "\n 5. Add product in shop." +
+                "\n 6. Remove product from shop" +
+                "\n 0. Exit from your account";
+            Console.Write(menu);
+        }
+
+        public void ShowMainMenu()
+        {
+            string menu =
+                "\n Pick your option:" +
+                "\n 1. Login." +
+                "\n 2. Register." +
+                "\n 3. Login as Guest." +
                 "\n 0. Exit";
             Console.Write(menu);
         }
@@ -66,24 +127,28 @@ namespace Magaz.Visual_controller
                 {
                     continue;
                 }
+
+                // Console.WriteLine(
+                //     $"{counter++}. " +
+                //     $"Name: {productData.Product.Name}, " +
+                //     $"code: {productData.Product.Code}, " +
+                //     $"quantity: {productData.Quantity} "
+                // );
                 Console.WriteLine(
-                    $"{counter++}. " +
-                    $"Name: {productData.Product.Name}, " +
-                    $"code: {productData.Product.Code}, " +
-                    $"quantity: {productData.Quantity} "
-                );
+                $"{counter++}. " +
+                $"{productData.ToString()}");
             }
         }
 
-        public ShopManager.OptionType RequestOption()
+        public int RequestOption()
         {
             string message = "\nPick an option";
             Console.WriteLine(message);
             var option = ReadANumberFromConsole();
-            return (ShopManager.OptionType) option;
+            return option;
         }
 
-        public void WrongOption(ShopManager.OptionType option)
+        public void WrongOption<T>(T option) where T : struct 
         {
             Console.WriteLine($"Sorry, but you have picked option that does not exist! You picked: {option.ToString()}");
         }
@@ -94,8 +159,6 @@ namespace Magaz.Visual_controller
             Console.WriteLine("You entered an amount that we cannot sell you");
             Console.WriteLine($"Your input: {amount.ToString()}");
             Console.WriteLine("You will need to pick an product again.");
-            
-            Thread.Sleep(200);
         }
 
         public void NotEnoughProduct(ProductData data, int userWantedAmount)
@@ -105,9 +168,7 @@ namespace Magaz.Visual_controller
             Console.WriteLine($"Name: {data.Product.Name} - {userWantedAmount.ToString()} ");
             Console.WriteLine($"But we have only {data.Quantity} in out shop");
             Console.WriteLine("You will need to pick anything else again.");
-            
-            Thread.Sleep(200);
-            
+
         }
 
         public int RequestNumberOfTypeProductsBuying()
@@ -146,11 +207,34 @@ namespace Magaz.Visual_controller
             Console.WriteLine($"But you tried to ordered {productAmountOnStock.ToString()}");
         }
 
+        public bool WarningAddingNewProductType(ProductInformation productInformation)
+        {
+            if (productInformation.Name is not null)
+            {
+                Console.WriteLine("Warning you entered a product name that we don`t have. Do you really want to add it?");
+            }
+
+            if (productInformation.Name is null)
+            {
+                Console.WriteLine($"You wanted to add a product buy it`s code. " +
+                                  $"But a product with a code {productInformation.Code} doesn`t exist");
+                Console.WriteLine("Do you want to add new product with this code?");
+            }
+
+            return YesOrNot();
+        }
+
+        public void WarningAddingNewProductType()
+        {
+            Console.WriteLine("Be careful!");
+            Console.WriteLine("If you try select product by code that doesn`t exist, you will need");
+        }
+
         public int RequestAmountOfProduct(ProductData data)
         {
             Console.WriteLine("Okey, we found a product that match your request.");
             Console.WriteLine($"Your Product:{data.Product.Name}, on stock we have {data.Quantity} of it.");
-            Console.WriteLine("How many of it do you want? Enter a number.");
+            Console.WriteLine("How many of it ? Enter a number.");
             return ReadANumberFromConsole();
         }
 
@@ -171,12 +255,9 @@ namespace Magaz.Visual_controller
             ByName = 1,
             ByCode = 2,
         }
-        
         public ProductInformation RequestProductInformation()
         {
-            Console.WriteLine("What product do you want to buy? You can pick a product by it`s name or code ");
-            Console.WriteLine("Enter it`s code or name");
-            
+            Console.WriteLine("Enter product code or name.");
             string input = Console.ReadLine();
             if (int.TryParse(input,out var code))
             {
@@ -184,8 +265,8 @@ namespace Magaz.Visual_controller
             }
             //by name
             return new ProductInformation(input);
-            
         }
+        
 
         public void FinishPurchasing(Order order)
         {
@@ -200,6 +281,75 @@ namespace Magaz.Visual_controller
                 }
                 Console.WriteLine("*************************");
             }
+        }
+
+        public void LoginIsNotAvailable()
+        {
+            Console.WriteLine("Sorry, but your wished login is already taken");
+            Console.WriteLine("Try registrate with another one");
+        }
+
+
+        public string RequestProductName()
+        {
+            Console.WriteLine("Enter product name:");
+            return Console.ReadLine();
+        }
+
+        public ShopManager.CodeSetting RequestCodeSetting()
+        {
+            Console.WriteLine("What about product code?");
+            Console.WriteLine("We can set it automatically");
+            Console.WriteLine("Or you can enter it.");
+            Console.WriteLine("Enter: Automatically - 0, Manually - 1");
+            return (ShopManager.CodeSetting) ReadANumberFromConsole();
+        }
+
+        public int RequestProductCode()
+        {
+            Console.WriteLine("Enter product code:");
+            return ReadANumberFromConsole();
+        }
+
+        public void WarningCodeTaken(int code)
+        {
+            Console.WriteLine($"Code: {code} is already taken. Enter another one.");
+        }
+
+        private bool YesOrNot()
+        {
+            Console.WriteLine("Enter: 1 - yes, 0 - no");
+            var input = ReadANumberFromConsole();
+            if (input is 1)
+            {
+                return true;
+            }
+
+            if (input is 0)
+            {
+                return false;
+            }
+            WrongOption(input);
+            return YesOrNot();
+        }
+
+        public int RequestAddingAmount(ProductInformation productInformation)
+        {
+            Console.WriteLine($"How many of {productInformation.Name} do you want to add?");
+            var amount = ReadANumberFromConsole();
+            return  amount < 0 ? 0 : amount ;
+        }
+
+        public bool AskForDeleteHistory(Product product)
+        {
+            Console.WriteLine("Do you want to delete all history of this product?");
+
+            return YesOrNot();
+        }
+
+        public void WrongAmount()
+        {
+            Console.WriteLine("You entered wrong amount.");
         }
 
 

@@ -10,7 +10,11 @@ namespace Magaz
 
         public void Take(ProductData productData, int amount);
         
-        public void Take(ProductInformation productInformation, int amount);
+        public void Put(ProductData productData, int amount);
         
+        public void Take(ProductInformation productInformation, int amount);
+
+        public void Put(ProductData data);
+
     }
 }
